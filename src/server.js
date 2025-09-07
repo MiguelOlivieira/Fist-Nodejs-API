@@ -1,4 +1,4 @@
-import http from 'http';
+import http from 'node:http';
 
 
 const users = []; //ARRAY PARA APLICAÇÃO STATEFUL
@@ -6,12 +6,15 @@ const users = []; //ARRAY PARA APLICAÇÃO STATEFUL
 
 const server = http.createServer((request, response) => { 
 
+
+
    const {method, url} = request;
 
    console.log(method, url);
 
 
-   
+   console.log(request.headers);
+
 
 
    if(method == 'GET' && url == '/users'){
@@ -20,6 +23,7 @@ const server = http.createServer((request, response) => {
      .end(JSON.stringify(users)) //conversão do array para json, e depois string. a API não consegue ler se mandarmos um array puro
    
    }
+
    if(method == 'POST' && url == '/users'){  //APLICAÇÃO STATEFUL.
 
             users.push({
@@ -29,10 +33,10 @@ const server = http.createServer((request, response) => {
          bio : 'I love making movies'
       });
 
-      return response.end('CRIAÇÃO DE USUARIO')
+      return response.writeHead(201).end();
    }
 
-    response.end('Hellddddo World\n');
+    response.writeHead(404).end('NOT FOUND'); //Caso o endpoint não exista, cai diretamente no status 404
 
 })
 
