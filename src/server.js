@@ -4,9 +4,19 @@ import http from 'node:http';
 const users = []; //ARRAY PARA APLICAÇÃO STATEFUL
 
 
-const server = http.createServer((request, response) => { 
+const server = http.createServer(async (request, response) => { 
+ const buffers = []
 
+    for await (const chunk of request){ //percorre cada chunk do request (stream)
+      buffers.push(chunk)
+    }
 
+    try{
+      request.body = JSON.parse(Buffer.concat(buffers).toString()) //Conversão para json
+    } catch {
+      request.body = null
+    }
+    console.log(request.body.name);
 
    const {method, url} = request;
 
@@ -25,11 +35,13 @@ const server = http.createServer((request, response) => {
    }
 
    if(method == 'POST' && url == '/users'){  //APLICAÇÃO STATEFUL.
+      const { name, email } = request.body
+
 
             users.push({
          id : 1,
-         name : 'John',
-         email : 'johntravolta24@outlook.com',
+         name,
+         email,
          bio : 'I love making movies'
       });
 

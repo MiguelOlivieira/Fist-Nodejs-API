@@ -15,12 +15,22 @@ class ConvertToNegativeNumberStream extends Transform {
 
 
 
-const server = http.createServer((request, response) => {
+const server = http.createServer(async (request, response) => {
+    const buffers = []
 
+    for await (const chunk of request){ //percorre cada chunk do request (stream)
+      buffers.push(chunk)
+    }
 
-    return request  
-          .pipe(new ConvertToNegativeNumberStream)
-          .pipe(response)
+    //Após todos os chuks do request serem percorridos, o for irá encerrar.
+
+    const fullStreamContent = Buffer.concat(buffers).toString() 
+
+    console.log(fullStreamContent)
+
+    return response.end(fullStreamContent)
+
+   
 })
 
 

@@ -10,7 +10,7 @@ class OneToHundredStream extends Readable {
 
 
      setTimeout(() => {
-           if(i > 100){
+           if(i > 5){
             this.push(null)
         } else{
             const buffer = Buffer.from(String(i));
@@ -20,10 +20,13 @@ class OneToHundredStream extends Readable {
     }
 }
 
-
+ //fetch api permite fazer requisições de uma aplicação para outra, ou de um endereço para outro. Front para back ou vice-versa 
 fetch('http://localhost:3334', {
     method: 'POST',
     body: new OneToHundredStream(), //Passando a stream como body
     duplex: 'half'
-}) //fetch api permite fazer requisições de uma aplicação para outra, ou de um endereço para outro. Front para back ou vice-versa
-
+}).then(response => {
+    return response.text()
+}).then(data => {
+    console.log(data)
+})
