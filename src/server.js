@@ -1,33 +1,26 @@
 import http from 'node:http';
+import { json } from './middlewares/json.js';
+import { randomUUID } from 'node:crypto';
+import { Database } from './middlewares/database.js';
 
-
-const users = []; //ARRAY PARA APLICAÇÃO STATEFUL
+const database = new Database()
 
 
 const server = http.createServer(async (request, response) => { 
- const buffers = []
 
-    for await (const chunk of request){ //percorre cada chunk do request (stream)
-      buffers.push(chunk)
-    }
 
-    try{
-      request.body = JSON.parse(Buffer.concat(buffers).toString()) //Conversão para json
-    } catch {
-      request.body = null
-    }
-    console.log(request.body.name);
-
+    console.log(request.body);
+      
    const {method, url} = request;
 
    console.log(method, url);
-
-
    console.log(request.headers);
 
-
+   await json(request, response)
 
    if(method == 'GET' && url == '/users'){
+      const users = database.select('users')
+
      return response
      .setHeader('Content-type', 'application/json') //Envia meta dados para o front (aplicacao ao lado do cliente)
      .end(JSON.stringify(users)) //conversão do array para json, e depois string. a API não consegue ler se mandarmos um array puro
@@ -38,13 +31,14 @@ const server = http.createServer(async (request, response) => {
       const { name, email } = request.body
 
 
-            users.push({
-         id : 1,
+          const user = {
+         id : randomUUID(),
          name,
          email,
          bio : 'I love making movies'
-      });
+      };
 
+      database.insert('users', user)
       return response.writeHead(201).end();
    }
 
